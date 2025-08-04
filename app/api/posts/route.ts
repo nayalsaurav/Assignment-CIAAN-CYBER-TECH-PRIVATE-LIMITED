@@ -32,8 +32,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const authorId = new Types.ObjectId(session.user.id);
-
     const post = await createPost({
       title,
       description,

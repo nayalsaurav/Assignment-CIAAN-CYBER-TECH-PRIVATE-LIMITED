@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ export default function SignInPage() {
         router.refresh();
       }
     } catch (error) {
+      console.error("Signin error:", error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);
@@ -96,7 +97,7 @@ export default function SignInPage() {
               {loading ? "Signing in..." : "Sign in"}
             </Button>
             <div className="text-center text-sm text-gray-600">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/auth/signup"
                 className="text-blue-600 hover:underline"

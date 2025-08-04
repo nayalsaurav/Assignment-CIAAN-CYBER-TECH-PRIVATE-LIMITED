@@ -33,10 +33,8 @@ export async function POST(request: NextRequest) {
       bio: bio || "",
     });
 
-    const { password: _, ...userWithoutPassword } = user;
-
     return NextResponse.json(
-      { message: "User created successfully", user: userWithoutPassword },
+      { message: "User created successfully", user: { id: user._id } },
       { status: 201 }
     );
   } catch (error) {

@@ -63,6 +63,7 @@ export default function HomePage() {
         toast.error("Failed to delete post");
       }
     } catch (error) {
+      console.error("Delete post error:", error);
       toast.error("Something went wrong");
     }
   };

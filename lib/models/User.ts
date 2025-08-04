@@ -10,7 +10,7 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export interface UserWithoutPassword extends Omit<IUser, "password"> {}
+export type UserWithoutPassword = Omit<IUser, "password">;
 
 const UserSchema = new Schema<IUser>(
   {

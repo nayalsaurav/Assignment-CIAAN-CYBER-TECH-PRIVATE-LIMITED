@@ -65,6 +65,7 @@ export default function EditPostDialog({
         toast.error("Failed to update post");
       }
     } catch (error) {
+      console.error("edit post error:", error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);

@@ -57,6 +57,7 @@ export default function CreatePostDialog({ children }: CreatePostDialogProps) {
         toast.error(error.error || "Failed to create post");
       }
     } catch (error) {
+      console.error("post creation error:", error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);

@@ -46,6 +46,7 @@ export default function SettingsPage() {
         setBio(data.user.bio || "");
       }
     } catch (error) {
+      console.error("fetch user data error:", error);
       toast.error("Failed to load user data");
     } finally {
       setInitialLoading(false);
@@ -73,6 +74,7 @@ export default function SettingsPage() {
         toast.error("Failed to update profile");
       }
     } catch (error) {
+      console.error("update user data error:", error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);

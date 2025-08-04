@@ -41,6 +41,7 @@ export default function ProfilePage() {
           toast.error("User not found");
         }
       } catch (error) {
+        console.error("Fetch profile error:", error);
         toast.error("Failed to load profile");
       } finally {
         setLoading(false);
@@ -81,6 +82,7 @@ export default function ProfilePage() {
         toast.error("Failed to delete post");
       }
     } catch (error) {
+      console.error("delete post error:", error);
       toast.error("Something went wrong");
     }
   };
@@ -115,7 +117,7 @@ export default function ProfilePage() {
               User Not Found
             </h2>
             <p className="text-gray-600">
-              The user you're looking for doesn't exist.
+              The user you&apos;re looking for doesn&apos;t exist.
             </p>
           </CardContent>
         </Card>

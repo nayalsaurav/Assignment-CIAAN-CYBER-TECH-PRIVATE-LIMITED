@@ -47,6 +47,7 @@ export default function SignUpPage() {
         toast.error(data.error || "Something went wrong");
       }
     } catch (error) {
+      console.error("Signup error:", error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);
