@@ -1,103 +1,177 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import PostCard from "@/components/PostCard";
+import CreatePostDialog from "@/components/CreatePostDialog";
+import EditPostDialog from "@/components/EditPostDialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { IPost } from "@/lib/models/Post";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Plus, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+export default function HomePage() {
+  const [posts, setPosts] = useState<IPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [editingPost, setEditingPost] = useState<IPost | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const { data: session } = useSession();
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch("/api/posts");
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshPosts = async () => {
+    setRefreshing(true);
+    await fetchPosts();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleEditPost = (post: IPost) => {
+    setEditingPost(post);
+    setEditDialogOpen(true);
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        toast.success("Post deleted successfully!");
+        setPosts(posts.filter((post) => post._id!.toString() !== postId));
+      } else {
+        toast.error("Failed to delete post");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto py-8 px-4">
+        <div className="space-y-6">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mt-4"></div>
+                    <div className="h-16 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto py-8 px-4">
+      <div className="space-y-6">
+        {session && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback>
+                    {session.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <CreatePostDialog>
+                  <Button
+                    variant="outline"
+                    className="flex-1 justify-start text-gray-500 hover:text-gray-700"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Share your thoughts...
+                  </Button>
+                </CreatePostDialog>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Recent Posts</h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshPosts}
+            disabled={refreshing}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+        </div>
+
+        {posts.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="max-w-md mx-auto">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                  <Plus className="h-8 w-8 text-gray-400" />
+                </div>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No posts yet
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Be the first to share something with the community!
+              </p>
+              {session && (
+                <CreatePostDialog>
+                  <Button>Create Your First Post</Button>
+                </CreatePostDialog>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {posts.map((post) => (
+              <PostCard
+                key={post._id!.toString()}
+                post={post}
+                onEdit={handleEditPost}
+                onDelete={handleDeletePost}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <EditPostDialog
+        post={editingPost}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
     </div>
   );
 }
